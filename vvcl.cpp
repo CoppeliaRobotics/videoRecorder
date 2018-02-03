@@ -1,4 +1,4 @@
-#include <vvcl.h>
+#include "vvcl.h"
 
 #if defined(_MSC_VER)
 #define INT64_C(val) val##i64
@@ -16,32 +16,32 @@ extern "C"{
 typedef struct{
 	const char Name[MAX_NAME];
 	const char* FormatName;
-	CodecID VideoEncoder;
+	AVCodecID VideoEncoder;
 	float Scale;
 }RECORDER_CONFIG;
 
 static const RECORDER_CONFIG s_Config[] = {
-	{ "AVI/H.263+ / H.263-1998 / H.263 version 2", "avi", CODEC_ID_H263P, 0.05f },
-	{ "AVI/MPEG-4 part 2", "avi", CODEC_ID_MPEG4, 0.05f },
-	{ "AVI/MPEG-4 part 2 Microsoft variant version 3", "avi", CODEC_ID_MSMPEG4V3, 0.05f },
-	{ "AVI/MPEG-4 part 2 Microsoft variant version 2", "avi", CODEC_ID_MSMPEG4V2, 0.05f },
-	{ "AVI/Windows Media Video 7", "avi", CODEC_ID_WMV1, 0.05f },
-	{ "AVI/Windows Media Video 8", "avi", CODEC_ID_WMV2, 0.05f },
-	{ "AVI/MPEG-1 video", "avi", CODEC_ID_MPEG1VIDEO, 0.05f },
-	{ "AVI/MPEG-2 video", "avi", CODEC_ID_MPEG2VIDEO, 0.05f },
-	{ "AVI/MJPEG (Motion JPEG)", "avi", CODEC_ID_MJPEG, 0.05f },
-	{ "AVI/Lossless JPEG", "avi", CODEC_ID_LJPEG, 0.05f },
-	{ "AVI/JPEG-LS", "avi", CODEC_ID_JPEGLS, 0.05f },
-	{ "AVI/Huffyuv / HuffYUV", "avi", CODEC_ID_HUFFYUV, 0.05f },
-	{ "AVI/Huffyuv FFmpeg variant", "avi", CODEC_ID_FFVHUFF, 0.05f },
-	{ "AVI/ASUS V1", "avi", CODEC_ID_ASV1, 0.05f },
-	{ "AVI/ASUS V2", "avi", CODEC_ID_ASV2, 0.05f },
-	{ "AVI/FFmpeg video codec #1", "avi", CODEC_ID_FFV1, 0.05f },
-	{ "AVI/Flash Video (FLV) / Sorenson Spark / Sorenson H.263", "avi", CODEC_ID_FLV1, 0.05f },
-	{ "AVI/Sorenson Vector Quantizer 1 / Sorenson Video 1 / SVQ1", "avi", CODEC_ID_SVQ1, 0.05f },
-	{ "AVI/DPX image", "avi", CODEC_ID_DPX, 0.05f },
-	{ "AVI/AMV Video", "avi", CODEC_ID_AMV, 0.05f },
-	{ "MP4/MPEG-4 part 2", "mp4", CODEC_ID_MPEG4, 0.05f },
+	{ "AVI/H.263+ / H.263-1998 / H.263 version 2", "avi", AV_CODEC_ID_H263P, 0.05f },
+	{ "AVI/MPEG-4 part 2", "avi", AV_CODEC_ID_MPEG4, 0.05f },
+	{ "AVI/MPEG-4 part 2 Microsoft variant version 3", "avi", AV_CODEC_ID_MSMPEG4V3, 0.05f },
+	{ "AVI/MPEG-4 part 2 Microsoft variant version 2", "avi", AV_CODEC_ID_MSMPEG4V2, 0.05f },
+	{ "AVI/Windows Media Video 7", "avi", AV_CODEC_ID_WMV1, 0.05f },
+	{ "AVI/Windows Media Video 8", "avi", AV_CODEC_ID_WMV2, 0.05f },
+	{ "AVI/MPEG-1 video", "avi", AV_CODEC_ID_MPEG1VIDEO, 0.05f },
+	{ "AVI/MPEG-2 video", "avi", AV_CODEC_ID_MPEG2VIDEO, 0.05f },
+	{ "AVI/MJPEG (Motion JPEG)", "avi", AV_CODEC_ID_MJPEG, 0.05f },
+	{ "AVI/Lossless JPEG", "avi", AV_CODEC_ID_LJPEG, 0.05f },
+	{ "AVI/JPEG-LS", "avi", AV_CODEC_ID_JPEGLS, 0.05f },
+	{ "AVI/Huffyuv / HuffYUV", "avi", AV_CODEC_ID_HUFFYUV, 0.05f },
+	{ "AVI/Huffyuv FFmpeg variant", "avi", AV_CODEC_ID_FFVHUFF, 0.05f },
+	{ "AVI/ASUS V1", "avi", AV_CODEC_ID_ASV1, 0.05f },
+	{ "AVI/ASUS V2", "avi", AV_CODEC_ID_ASV2, 0.05f },
+	{ "AVI/FFmpeg video codec #1", "avi", AV_CODEC_ID_FFV1, 0.05f },
+	{ "AVI/Flash Video (FLV) / Sorenson Spark / Sorenson H.263", "avi", AV_CODEC_ID_FLV1, 0.05f },
+	{ "AVI/Sorenson Vector Quantizer 1 / Sorenson Video 1 / SVQ1", "avi", AV_CODEC_ID_SVQ1, 0.05f },
+	{ "AVI/DPX image", "avi", AV_CODEC_ID_DPX, 0.05f },
+	{ "AVI/AMV Video", "avi", AV_CODEC_ID_AMV, 0.05f },
+	{ "MP4/MPEG-4 part 2", "mp4", AV_CODEC_ID_MPEG4, 0.05f },
 };
 
 static const int s_ConfigCount = sizeof(s_Config) / sizeof(s_Config[0]);
@@ -138,7 +138,7 @@ char recorderInitialize(int resolutionX, int resolutionY, const char* fileAndPat
 		const int height = ((resolutionY + 15) / 16) * 16;
 
 
-		if(avpicture_alloc(&r->PictureIn, PIX_FMT_RGB24, width, height) < 0){
+		if(avpicture_alloc(&r->PictureIn, AV_PIX_FMT_RGB24, width, height) < 0){
 			break;
 		}
 		
@@ -182,26 +182,26 @@ char recorderInitialize(int resolutionX, int resolutionY, const char* fileAndPat
 		c->time_base.den = framerate;
 		c->time_base.num = 1;
 		c->gop_size = framerate * 5;
-		c->pix_fmt = PIX_FMT_YUV420P;
+		c->pix_fmt = AV_PIX_FMT_YUV420P;
 		c->max_b_frames = 0;
 
-		if(c->codec_id == CODEC_ID_MJPEG || c->codec_id == CODEC_ID_LJPEG || c->codec_id == CODEC_ID_AMV){
-			c->pix_fmt = PIX_FMT_YUVJ420P;
+		if(c->codec_id == AV_CODEC_ID_MJPEG || c->codec_id == AV_CODEC_ID_LJPEG || c->codec_id == AV_CODEC_ID_AMV){
+			c->pix_fmt = AV_PIX_FMT_YUVJ420P;
 		}
 
-		if(c->codec_id == CODEC_ID_JPEGLS || c->codec_id == CODEC_ID_HUFFYUV || c->codec_id == CODEC_ID_DPX){
-			c->pix_fmt = PIX_FMT_RGB24;
+		if(c->codec_id == AV_CODEC_ID_JPEGLS || c->codec_id == AV_CODEC_ID_HUFFYUV || c->codec_id == AV_CODEC_ID_DPX){
+			c->pix_fmt = AV_PIX_FMT_RGB24;
 		}
 
-		if(c->codec_id == CODEC_ID_SVQ1){
-			c->pix_fmt = PIX_FMT_YUV410P;
+		if(c->codec_id == AV_CODEC_ID_SVQ1){
+			c->pix_fmt = AV_PIX_FMT_YUV410P;
 		}
 
-		if(c->codec_id == CODEC_ID_TARGA){
-			c->pix_fmt = PIX_FMT_BGR24;
+		if(c->codec_id == AV_CODEC_ID_TARGA){
+			c->pix_fmt = AV_PIX_FMT_BGR24;
 		}
 
-		if(c->codec_id == CODEC_ID_MPEG1VIDEO){
+		if(c->codec_id == AV_CODEC_ID_MPEG1VIDEO){
 			c->mb_decision = 2;
 		}
 
@@ -215,7 +215,7 @@ char recorderInitialize(int resolutionX, int resolutionY, const char* fileAndPat
 
 		r->bNeedCloseCodec = true;
 
-		if((r->pFrame = avcodec_alloc_frame()) == NULL){
+		if((r->pFrame = av_frame_alloc()) == NULL){
 			break;
 		}
 
@@ -225,7 +225,7 @@ char recorderInitialize(int resolutionX, int resolutionY, const char* fileAndPat
 
 		r->pFrame->pts = 0;
 
-		if((r->Resample = sws_getContext(c->width, c->height, PIX_FMT_RGB24, c->width, c->height, c->pix_fmt, SWS_BICUBIC, NULL, NULL, NULL)) == NULL){
+		if((r->Resample = sws_getContext(c->width, c->height, AV_PIX_FMT_RGB24, c->width, c->height, c->pix_fmt, SWS_BICUBIC, NULL, NULL, NULL)) == NULL){
 			break;
 		}
 
@@ -310,18 +310,22 @@ char recorderAddFrame(const unsigned char* buffer)
 		pFrame = r->pFrame;
 	}
 
-	if((r->Packet.size = avcodec_encode_video(c, r->Packet.data, r->MaxPacketSize, pFrame)) < 0){
+	//if((r->Packet.size = avcodec_encode_video(c, r->Packet.data, r->MaxPacketSize, pFrame)) < 0){
+    int got_packet;
+    if(avcodec_encode_video2(c, &r->Packet, pFrame, &got_packet) < 0){
 		return RECORDER_ERROR;
 	}
 
 	if(pFrame != NULL){
 		pFrame->pts += 1;
 
-		if(r->Packet.size == 0){
+		//if(r->Packet.size == 0){
+		if(!got_packet){
 			return RECORDER_OK;
 		}
 	}else{
-		if(r->Packet.size == 0){
+		//if(r->Packet.size == 0){
+		if(!got_packet){
 			return RECORDER_ERROR;
 		}
 	}
