@@ -1,13 +1,5 @@
 #include "vvcl.h"
 
-#if defined(_MSC_VER)
-#define INT64_C(val) val##i64
-#define UINT64_C(val) val##ui64
-#elif defined(__GNUC__)
-#define INT64_C(val) val##LL
-#define UINT64_C(val) val##ULL
-#endif
-
 extern "C"{
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
@@ -34,12 +26,8 @@ static const RECORDER_CONFIG s_Config[] = {
 	{ "AVI/JPEG-LS", "avi", AV_CODEC_ID_JPEGLS, 0.05f },
 	{ "AVI/Huffyuv / HuffYUV", "avi", AV_CODEC_ID_HUFFYUV, 0.05f },
 	{ "AVI/Huffyuv FFmpeg variant", "avi", AV_CODEC_ID_FFVHUFF, 0.05f },
-	{ "AVI/ASUS V1", "avi", AV_CODEC_ID_ASV1, 0.05f },
-	{ "AVI/ASUS V2", "avi", AV_CODEC_ID_ASV2, 0.05f },
 	{ "AVI/FFmpeg video codec #1", "avi", AV_CODEC_ID_FFV1, 0.05f },
 	{ "AVI/Flash Video (FLV) / Sorenson Spark / Sorenson H.263", "avi", AV_CODEC_ID_FLV1, 0.05f },
-	{ "AVI/Sorenson Vector Quantizer 1 / Sorenson Video 1 / SVQ1", "avi", AV_CODEC_ID_SVQ1, 0.05f },
-	{ "AVI/DPX image", "avi", AV_CODEC_ID_DPX, 0.05f },
 	{ "AVI/AMV Video", "avi", AV_CODEC_ID_AMV, 0.05f },
 	{ "MP4/MPEG-4 part 2", "mp4", AV_CODEC_ID_MPEG4, 0.05f },
 };
@@ -59,7 +47,6 @@ typedef struct{
 	bool bNeedCloseCodec;
 	AVFrame* pFrame;
 	SwsContext* Resample;
-	int MaxPacketSize;
 	AVPacket Packet;
 }RECORDER;
 
@@ -75,7 +62,7 @@ static void ffmpeg_log(void* , int level, const char* fmt, va_list args)
 
 	vsnprintf(s + sizeof(s_ffmpeg_log_prefix) - 1, sizeof(s) - sizeof(s_ffmpeg_log_prefix) - 1, fmt, args);
 
-	printf(s);
+	puts(s);
 }
 
 static void ffmpeg_init(void)
@@ -206,7 +193,7 @@ char recorderInitialize(int resolutionX, int resolutionY, const char* fileAndPat
 		}
 
 		if(r->pFile->oformat->flags & AVFMT_GLOBALHEADER){
-			c->flags |= CODEC_FLAG_GLOBAL_HEADER;
+			c->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 		}
 
 		if(avcodec_open2(c, pCodec, NULL) < 0){
@@ -224,6 +211,11 @@ char recorderInitialize(int resolutionX, int resolutionY, const char* fileAndPat
 		}
 
 		r->pFrame->pts = 0;
+		r->pFrame->format = c->pix_fmt;
+		r->pFrame->width = c->width;
+		r->pFrame->height = c->height;
+
+		s->time_base = c->time_base;
 
 		if((r->Resample = sws_getContext(c->width, c->height, AV_PIX_FMT_RGB24, c->width, c->height, c->pix_fmt, SWS_BICUBIC, NULL, NULL, NULL)) == NULL){
 			break;
@@ -237,13 +229,7 @@ char recorderInitialize(int resolutionX, int resolutionY, const char* fileAndPat
 			break;
 		}
 
-		r->MaxPacketSize = c->width * c->height * 8;
-
-		if(av_new_packet(&r->Packet, r->MaxPacketSize) < 0){
-			break;
-		}
-
-		r->Packet.stream_index = s->index;
+		av_init_packet(&r->Packet);
 
 		if((r->width & 15) != 0 || (r->height & 15) != 0){
 			return RECORDER_WARNING;
@@ -310,21 +296,21 @@ char recorderAddFrame(const unsigned char* buffer)
 		pFrame = r->pFrame;
 	}
 
-	//if((r->Packet.size = avcodec_encode_video(c, r->Packet.data, r->MaxPacketSize, pFrame)) < 0){
-    int got_packet;
-    if(avcodec_encode_video2(c, &r->Packet, pFrame, &got_packet) < 0){
+	av_free_packet(&r->Packet);
+	av_init_packet(&r->Packet);
+
+	int got_packet;
+	if(avcodec_encode_video2(c, &r->Packet, pFrame, &got_packet) < 0){
 		return RECORDER_ERROR;
 	}
 
 	if(pFrame != NULL){
 		pFrame->pts += 1;
 
-		//if(r->Packet.size == 0){
 		if(!got_packet){
 			return RECORDER_OK;
 		}
 	}else{
-		//if(r->Packet.size == 0){
 		if(!got_packet){
 			return RECORDER_ERROR;
 		}
