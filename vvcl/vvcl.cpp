@@ -52,7 +52,7 @@ typedef struct{
 
 static void ffmpeg_log(void* , int level, const char* fmt, va_list args)
 {
-	if(level > AV_LOG_VERBOSE){
+	if(level > AV_LOG_WARNING){
 		return;
 	}
 
