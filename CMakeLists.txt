@@ -18,7 +18,7 @@ project(VideoCompression)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
-find_package(FFmpeg COMPONENTS AVCODEC AVFORMAT AVUTIL SWSCALE REQUIRED)
+find_package(FFMPEG COMPONENTS AVCODEC AVFORMAT AVUTIL SWSCALE REQUIRED)
 
 if(FFMPEG_FOUND)
 #  FFMPEG_INCLUDE_DIRS  - Include directory necessary for using the required components headers.
