@@ -1,24 +1,15 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;RelWithDebInfo" CACHE STRING "" FORCE)
-set(INSTALL_DIR "" CACHE PATH "If specified, it will be used as install destination")
-if(INSTALL_DIR)
-    if(NOT EXISTS "${INSTALL_DIR}")
-        message(FATAL_ERROR "'${INSTALL_DIR}' does not exist")
-    elseif(NOT IS_DIRECTORY "${INSTALL_DIR}")
-        message(FATAL_ERROR "'${INSTALL_DIR}' is not a directory")
-    endif()
-    message(STATUS "INSTALL_DIR: ${INSTALL_DIR}")
-endif()
 
 macro(add_precompiled_header PrecompiledHeader PrecompiledSource SourcesVar)
   if(MSVC)
     set(Sources ${${SourcesVar}})
 
     set_source_files_properties(${PrecompiledSource} PROPERTIES COMPILE_FLAGS "/Yc\"${PrecompiledHeader}\"")
-    
-    set_source_files_properties(${Sources} PROPERTIES COMPILE_FLAGS "/Yu\"${PrecompiledHeader}\"")  
-                                
+
+    set_source_files_properties(${Sources} PROPERTIES COMPILE_FLAGS "/Yu\"${PrecompiledHeader}\"")
+
     list(APPEND ${SourcesVar} ${PrecompiledHeader} ${PrecompiledSource})
   endif(MSVC)
 endmacro(add_precompiled_header)
